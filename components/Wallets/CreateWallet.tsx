@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
+import bs58 from "bs58";
 import {
   Connection,
   Keypair,
@@ -13,6 +14,8 @@ const CreateWallet: React.FC = () => {
   const [keypair, setKeyPair] = useState<Keypair | null>(null);
   const [balance, setBalance] = useState<number | null>(null);
   const [publicKey, setPublicKey] = useState<string>("");
+  const [secretKey, setSecretKey] = useState<string>("");
+  const [showSecKey, setShowSecKey] = useState<boolean>(false);
 
   useEffect(() => {
     const savedSecretKey = localStorage.getItem("walletSecretKey");
@@ -26,34 +29,43 @@ const CreateWallet: React.FC = () => {
     }
   }, []);
 
-  const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+  const connection = new Connection(
+    "https://api.devnet.solana.com",
+    "confirmed"
+  );
 
-  const getBalance = useCallback( async () => {
-    if (keypair) {  // Add this check to avoid using a potentially null keypair
+  const getSecretKey = () => {
+    const savedSecretKey = localStorage.getItem("walletSecretKey");
+    if (savedSecretKey) {
+      const secretKeyArray = JSON.parse(savedSecretKey);
+      const secKey = bs58.encode(new Uint8Array(secretKeyArray));
+      setSecretKey(secKey);
+      setShowSecKey(true);
+    }
+  };
+
+  const getBalance = useCallback(async () => {
+    if (keypair) {
       const walletBalance =
         (await connection.getBalance(keypair.publicKey)) / LAMPORTS_PER_SOL;
       setBalance(walletBalance);
     }
-  },[keypair,connection]);
+  }, [keypair, connection]);
 
   useEffect(() => {
-
     getBalance();
-    if(keypair){
-      const publickey= new PublicKey(keypair.publicKey) as PublicKey;
+    if (keypair) {
+      const publickey = new PublicKey(keypair.publicKey) as PublicKey;
 
-    const subscriptionId = connection.onAccountChange(
-      publickey,
-      async()=>{
+      const subscriptionId = connection.onAccountChange(publickey, async () => {
         await getBalance();
-      }
-    );
+      });
 
-    return ()=>{
-      connection.removeAccountChangeListener(subscriptionId);
+      return () => {
+        connection.removeAccountChangeListener(subscriptionId);
+      };
     }
-    }
-  }, [keypair, connection,getBalance]);
+  }, [keypair, connection, getBalance]);
 
   const handleCreateWallet = () => {
     if (keypair) {
@@ -70,21 +82,47 @@ const CreateWallet: React.FC = () => {
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1>Create Solana Wallet</h1>
+    <div className="bg-black text-white min-h-screen flex flex-col items-center justify-center">
+      <h1 className="text-4xl mb-6 font-semibold">Create Solana Wallet</h1>
 
       {publicKey ? (
-        <>
-          <div>
-            <h1>Your Wallet Address:</h1>
-            <p>{publicKey}</p>
-            <h1>Balance</h1>
-            <p>{balance !== null ? `${balance} SOL` : "Loading..."}</p>
-          </div>
+        <div className="bg-gray-800 p-6 rounded-lg shadow-lg text-center">
+          <h2 className="text-2xl mb-2 font-semibold">Your Wallet Address:</h2>
+          <p className="break-all text-sm">{publicKey}</p>
+          {showSecKey ? (
+            <div className="mt-4">
+              <h2 className="text-2xl mb-2 font-semibold">Your SecretKey</h2>
+
+              <p className="text-xs">{secretKey}</p>
+              <p
+                onClick={() => setShowSecKey(false)}
+                className="text-red-500 cursor-pointer mt-2"
+              >
+                Hide Secret Key
+              </p>
+            </div>
+          ) : (
+            <button
+              onClick={getSecretKey}
+              className="bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded mt-4 transition duration-200"
+            >
+              Show Secret Key
+            </button>
+          )}
+
+          <h2 className="text-2xl mt-6 font-semibold">Balance</h2>
+          <p className="text-lg">
+            {balance !== null ? `${balance.toFixed(4)} SOL` : "Loading..."}
+          </p>
           <AirdroptoWallet keypair={keypair} />
-        </>
+        </div>
       ) : (
-        <button onClick={handleCreateWallet}>Create Wallet</button>
+        <button
+          onClick={handleCreateWallet}
+          className="bg-green-600 hover:bg-green-500 text-white py-2 px-4 rounded mt-6 transition duration-200"
+        >
+          Create Wallet
+        </button>
       )}
     </div>
   );

@@ -3,7 +3,7 @@
 import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction } from '@solana/web3.js';
 import React, { useEffect, useState } from 'react';
 
-const SendToOtherWallet = () => {
+const SendToOtherWallet: React.FC = () => {
   const [wallet, setWallet] = useState('');
   const [amount, setAmount] = useState('');
   const [keypair, setKeyPair] = useState<Keypair | null>(null);
@@ -62,49 +62,59 @@ const SendToOtherWallet = () => {
   };
 
   return (
-    <div className='flex flex-col items-center'>
-      <form onSubmit={handleSubmit}>
+    <div className='bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-6'>
+      <h1 className='text-3xl mb-6'>Send SOL to Another Wallet</h1>
+      <form onSubmit={handleSubmit} className='bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md'>
         <div className='mb-4'>
-          <label>Enter wallet address to send SOL:</label>
+          <label className='block mb-2'>Enter wallet address to send SOL:</label>
           <input
             type='text'
             placeholder='Enter wallet address'
             name='wallet'
             value={wallet}
             onChange={(e) => setWallet(e.target.value)}
-            className='border rounded p-2 text-black'
+            className='border border-gray-700 rounded p-2 w-full text-black'
           />
         </div>
 
         <div className='mb-4'>
-          <label>Enter the amount of SOL:</label>
+          <label className='block mb-2'>Enter the amount of SOL:</label>
           <input
             type='number'
             placeholder='Enter the amount of SOL'
             name='amount'
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className='border rounded p-2 text-black'
+            className='border border-gray-700 rounded p-2 w-full text-black'
           />
         </div>
 
         {error && (
-          <div className='text-red-500'>
-            <h2>Transaction Failed</h2>
+          <div className='text-red-500 mb-4'>
+            <h2 className='text-lg font-semibold'>Transaction Failed</h2>
             <p>{error}</p>
           </div>
         )}
 
         {signature && (
-          <div className='text-green-500'>
-            <h2>Transaction Sent</h2>
-            <a href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`} target="_blank" rel="noopener noreferrer">
+          <div className='text-green-500 mb-4'>
+            <h2 className='text-lg font-semibold'>Transaction Sent</h2>
+            <a 
+              href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className='underline'
+            >
               Check on Explorer
             </a>
           </div>
         )}
 
-        <button type='submit' className='bg-blue-500 text-white py-2 px-4 rounded' disabled={submitting}>
+        <button 
+          type='submit' 
+          className={`bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded transition duration-200 w-full ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`} 
+          disabled={submitting}
+        >
           {submitting ? 'Submitting...' : 'Send SOL'}
         </button>
       </form>

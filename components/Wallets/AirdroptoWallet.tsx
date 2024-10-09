@@ -28,16 +28,25 @@ const AirdroptoWallet: React.FC<AirdropToWalletProps> = ({ keypair }) => {
       // Confirm the transaction
       await connection.confirmTransaction(signature);
       setStatus("Airdrop successful! 2 SOL added to your wallet.");
-    } catch (error:any) {
+    } catch (error: any) {
       console.error("Airdrop failed:", error);
       setStatus(`Airdrop failed: ${error.message}`);
     }
   };
 
   return (
-    <div>
-      <button onClick={handleAirdrop}>Airdrop 2 SOL</button>
-      {status && <p>{status}</p>}
+    <div className="mt-6">
+      <button 
+        onClick={handleAirdrop} 
+        className="bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded transition duration-200"
+      >
+        Airdrop 2 SOL
+      </button>
+      {status && (
+        <p className={`mt-2 ${status.includes("successful") ? "text-green-500" : "text-red-500"}`}>
+          {status}
+        </p>
+      )}
     </div>
   );
 };
