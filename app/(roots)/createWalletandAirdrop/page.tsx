@@ -1,5 +1,5 @@
 import React from "react";
-import CreateWallet from "@/components/CreateWallet";
+import CreateWallet from "@/components/Wallets/CreateWallet";
 
 const page = () => {
   return (
