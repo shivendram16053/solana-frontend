@@ -25,3 +25,44 @@ body {
     text-wrap: balance;
   }
 }
+
+.wallet-adapter-button:not([disabled]):hover{
+  background-color: #ffffffbd;
+}
+.wallet-adapter-button-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  border-radius: 9999px; /* Fully rounded button (Equivalent to rounded-full) */
+  font-size: 0.875rem; /* Equivalent to text-sm */
+  font-weight: 500; /* Equivalent to font-medium */
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; /* Smooth transition */
+  outline: none; /* No outline on focus */
+  box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.05); /* Inner shadow for a subtle effect */
+  background-color: white; /* Button background color */
+  color: black; /* Button text color */
+  height: 2.25rem; /* Equivalent to h-9 */
+  padding: 0.75rem 1rem; /* Padding equivalent to px-4 py-3 */
+}
+
+.wallet-adapter-button-trigger:hover {
+  background-color: #ffffffe2; /* Hover background color (Replace with your primary color) */
+  color: rgb(0, 0, 0); /* Change text color on hover */
+}
+
+.wallet-adapter-button-trigger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(209, 213, 219, 1); /* Ring around the button on focus */
+}
+
+.wallet-adapter-button-trigger:disabled {
+  pointer-events: none;
+  opacity: 0.5; /* Disable pointer events and reduce opacity */
+}
+
+@media (min-width: 768px) {
+  .wallet-adapter-button-trigger {
+    height: 2.5rem; /* Adjust height for larger screens */
+  }
+}
