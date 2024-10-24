@@ -17,7 +17,6 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 @layer utilities {
@@ -26,10 +25,10 @@ body {
   }
 }
 
-.wallet-adapter-button:not([disabled]):hover{
+.wallet-adapter-button:not([disabled]):hover,.navbar-button:not([disabled]):hover{
   background-color: #ffffffbd;
 }
-.wallet-adapter-button-trigger {
+.wallet-adapter-button-trigger,.navbar-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -43,26 +42,27 @@ body {
   background-color: white; /* Button background color */
   color: black; /* Button text color */
   height: 2.25rem; /* Equivalent to h-9 */
+  cursor: pointer;
   padding: 0.75rem 1rem; /* Padding equivalent to px-4 py-3 */
 }
 
-.wallet-adapter-button-trigger:hover {
+.wallet-adapter-button-trigger:hover , .navbar-button:hover{
   background-color: #ffffffe2; /* Hover background color (Replace with your primary color) */
   color: rgb(0, 0, 0); /* Change text color on hover */
 }
 
-.wallet-adapter-button-trigger:focus-visible {
+.wallet-adapter-button-trigger:focus-visible ,.navbar-button:focus-visible{
   outline: none;
   box-shadow: 0 0 0 1px rgba(209, 213, 219, 1); /* Ring around the button on focus */
 }
 
-.wallet-adapter-button-trigger:disabled {
+.wallet-adapter-button-trigger:disabled ,.navbar-button:disabled{
   pointer-events: none;
   opacity: 0.5; /* Disable pointer events and reduce opacity */
 }
 
 @media (min-width: 768px) {
-  .wallet-adapter-button-trigger {
+  .wallet-adapter-button-trigger ,.navbar-button{
     height: 2.5rem; /* Adjust height for larger screens */
   }
 }

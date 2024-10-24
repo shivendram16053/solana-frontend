@@ -1,80 +1,72 @@
 import React from "react";
-import solana from "../Images/Solana.png";
+import img from "../Images/x.png"; // Assuming you have the image imported
 import Image from "next/image";
-import Link from "next/link";
 
 const Hero = () => {
   return (
-    <div>
-      <div className="max-w-3xl lg:max-w-7xl mx-auto p-6 flex items-center h-[75vh] justify-between">
-        {/* Left Side: Text */}
-        <div className="md:w-1/2 w-full text-center md:text-left">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Learn Solana Frontend
-          </h1>
-          <p className="text-lg md:text-xl mb-4">
-            Start from basics to advanced, not only code but also the demo of
-            each and how it works.
-          </p>
-          <Link
-            href={"/basics"}
-            className="h-9 md:h-10 px-4 py-3 w-fit rounded-full text-sm font-medium flex items-center gap-[2px] text-black bg-white hover:bg-gray-200"
-          >
-            Get Started
-          </Link>
-        </div>
+    <div className="hero-container overflow-hidden">
+      {/* Gradient Background */}
+      <div
+        className="w-full min-h-screen flex flex-col justify-center"
+        style={{
+          background: "linear-gradient(180deg, #240d3f, #18092a, black, black)",
+        }}
+      >
+        {/* Hero Content */}
+        <div className="container mx-auto pt-60 p-6 flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0 relative">
+          {/* Left Side - Text */}
+          <div className="md:w-1/2 pl-16 space-y-4 text-white z-10">
+            <h1
+              className="font-extrabold"
+              style={{ fontSize: "4.5rem", fontWeight: 1000 }}
+            >
+              The Front Page of Solana
+            </h1>
+            <h2
+              className="text-3xl"
+              style={{ fontSize: "1.7rem", fontWeight: 600 }}
+            >
+              Manage your portfolio, DeFi positions, NFTs, and monitor key Solana Analytics.
+            </h2>
+            <p className="text-lg">
+              Step Finance empowers individuals, businesses, and developers with the tools to manage portfolios,
+              analyze data, and foster innovation. We support 95% of Solana protocols, enabling you to track assets,
+              make data-driven decisions, and engage with the growing Solana ecosystem.
+            </p>
+            <div className="flex space-x-4">
+              <a
+                href="/home/start"
+                className="inline-block px-6 py-3 bg-primary text-white rounded-full text-lg font-semibold hover:bg-primary/90 navbar-button"
+              >
+                View Your Portfolio
+              </a>
+              <a
+                href="#"
+                className="inline-block px-6 py-3 text-white rounded-full text-lg font-semibold hover:text-gray-300"
+              >
+                Partner With Us →
+              </a>
+            </div>
+          </div>
 
-        {/* Right Side: Logo */}
-        <div className="md:w-1/2 w-full flex justify-center md:justify-end md:mt-0">
-          <Image src={solana} height={300} width={400} alt="Solana" />
+          {/* Right Side - Image with Shadow */}
+          <div className=" absolute right-[-600px]">
+            <div className="overflow-hidden">
+              <Image
+                src={img}
+                alt="Solana Feature"
+                width={1200}
+                height={1200}
+                className="rounded-lg shadow-2xl"
+                priority={true} // Optimize loading
+              ></Image>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Cards Section */}
-      <div className="flex justify-center items-center gap-10 max-w-3xl lg:max-w-7xl mx-auto mt-10">
-        {/* Basics Card */}
-        <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg h-auto w-[30%] text-center hover:shadow-xl transition-shadow">
-          <h1 className="text-xl font-bold mb-4">Start from Basics</h1>
-          <p className="text-md mb-4">
-            Get started with the fundamentals of Solana, setting up your environment, and learning the basics of frontend integration.
-          </p>
-          <Link href="/basics" className="text-sm text-white underline">
-            Learn Basics
-          </Link>
-        </div>
-
-        {/* Intermediate Card */}
-        <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg h-auto w-[30%] text-center hover:shadow-xl transition-shadow">
-          <h1 className="text-xl font-bold mb-4">Learn Intermediate</h1>
-          <p className="text-md mb-4">
-            Move to the next level by diving deeper into wallet integration, transaction handling, and frontend dApp logic.
-          </p>
-          <Link href="/intermediate" className="text-sm text-white underline">
-            Learn Intermediate
-          </Link>
-        </div>
-
-        {/* Advanced Card */}
-        <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg h-auto w-[30%] text-center hover:shadow-xl transition-shadow">
-          <h1 className="text-xl font-bold mb-4">Be an Advanced Developer</h1>
-          <p className="text-md mb-4">
-            Master the art of building sophisticated dApps, optimize performance, and work with advanced Solana features.
-          </p>
-          <Link href="/advanced" className="text-sm text-white underline">
-            Learn Advanced
-          </Link>
-        </div>
-      </div>
-
-      {/* Footer Section */}
-      <div className="absolute bottom pt-10 left-1/2 transform -translate-x-1/2 text-white">
-        Contact me on{" "}
-        <Link
-          className="text-orange-300 underline"
-          href={"https://x.com/shibu0x"}
-        >
-          Twitter
-        </Link>
+      <div>
+        hello
       </div>
     </div>
   );

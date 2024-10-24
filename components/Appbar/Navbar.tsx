@@ -1,7 +1,4 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
@@ -12,46 +9,34 @@ const WalletMultiButton = dynamic(
 );
 
 const Navbar = () => {
-  const { connected, publicKey } = useWallet();
-
-  const router = useRouter();
-  useEffect(() => {
-    if (connected && publicKey) {
-      const address = publicKey.toBase58();
-      localStorage.setItem("publickey", address);
-
-      // Check if the user exists in the database
-      const checkUser = async () => {
-        const response = await fetch(`/api/users/check?publicKey=${address}`);
-        const data = await response.json();
-
-        // If the user does not exist, show the onboarding form
-        if (!data.exists) {
-          router.push("/onboarding");
-        }
-      };
-      checkUser();
-    } else {
-      localStorage.removeItem("publickey");
-    }
-  }, [connected, publicKey]);
-
   return (
-    <div className="max-w-4xl lg:max-w-7xl mx-auto p-6 flex items-center justify-between">
-      <div>
-        LEARN SOLANA
-      </div>
-      <div className="flex gap-5 items-center">
+    <div
+      className="navbar-container absolute w-full p-6 flex items-center justify-between bg-opacity-75 top-0 left-0 z-10"
+    >
+      <div className="text-xl font-bold">SOLKEN</div>
+      <div className="flex space-x-4">
         <Link
-          href={"/basics"}
-          className="h-9 md:h-10 px-4 py-3 w-fit rounded-full text-sm font-medium flex items-center gap-[2px] bg-primary text-primary-foreground hover:bg-primary/90"
+          href={"/home/track"}
+          className="h-9 md:h-10 px-4 py-3 w-fit rounded-full text-base font-bold flex items-center gap-[2px] bg-primary text-primary-foreground hover:bg-primary/90"
         >
-          Basics
+          Track Wallet
         </Link>
-        <nav className="flex items-center space-x-4">
-          <WalletMultiButton />
-        </nav>
+        <Link
+          href={"/home/create-token"}
+          className="h-9 md:h-10 px-4 py-3 w-fit rounded-full text-base font-bold flex items-center gap-[2px] bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          Create Token
+        </Link>
+        <Link
+          href={"/home/create-nft"}
+          className="h-9 md:h-10 px-4 py-3 w-fit rounded-full text-base font-bold flex items-center gap-[2px] bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          Create NFT
+        </Link>
       </div>
+      <nav className="flex items-center space-x-4">
+        <WalletMultiButton />
+      </nav>
     </div>
   );
 };
