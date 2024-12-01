@@ -1,14 +1,14 @@
 "use client";
 
-import Hero from '@/components/Appbar/Hero';
-import Navbar from '@/components/Appbar/Navbar'
+import LandinPage from '@/components/Appbar/LandingPage';
+import LandingNav from '@/components/Appbar/LandingNav'
 import React from 'react'
 
 const page = () => {
   return (
     <>
-    <Navbar/>
-    <Hero/>
+    <LandingNav/>
+    <LandinPage/>
     </>
   )
 }

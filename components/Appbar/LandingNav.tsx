@@ -2,13 +2,13 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
-const WalletMultiButton = dynamic(
-  async () =>
-    (await import("@solana/wallet-adapter-react-ui")).WalletMultiButton,
-  { ssr: false }
-);
+// const WalletMultiButton = dynamic(
+//   async () =>
+//     (await import("@solana/wallet-adapter-react-ui")).WalletMultiButton,
+//   { ssr: false }
+// );
 
-const Navbar = () => {
+const LandingNav = () => {
   return (
     <div
       className="navbar-container absolute w-full p-6 flex items-center justify-between bg-opacity-75 top-0 left-0 z-10"
@@ -34,11 +34,11 @@ const Navbar = () => {
           Create NFT
         </Link>
       </div>
-      <nav className="flex items-center space-x-4">
-        <WalletMultiButton />
-      </nav>
+      <Link className="flex items-center space-x-4 navbar-button" href={"/home"}>
+        Get Started
+      </Link>
     </div>
   );
 };
 
-export default Navbar;
+export default LandingNav;

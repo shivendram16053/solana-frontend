@@ -1,7 +1,7 @@
 "use client";
 
 import { createMint, getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
-import { clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { clusterApiUrl, Connection, Keypair } from "@solana/web3.js";
 import React, { useEffect, useState } from "react";
 import FetchTokens from "./FetchTokens";
 
