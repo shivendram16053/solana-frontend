@@ -62,6 +62,7 @@ const CreateWallet: React.FC = () => {
       return;
     }
     const newKeypair = Keypair.generate();
+    console.log(newKeypair);
     const secretKeyArray = Array.from(newKeypair.secretKey);
     localStorage.setItem("walletSecretKey", JSON.stringify(secretKeyArray));
     setKeyPair(newKeypair);

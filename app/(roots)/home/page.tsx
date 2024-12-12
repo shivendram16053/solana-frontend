@@ -9,7 +9,7 @@ import { useNFTs } from "@/hook/useNFTs";
 
 const Page = () => {
   const { cluster, wallet } = useClusterWallet();
-  const { tokens, tokenError, tokenLoading } = useTokens();
+  const { tokens, tokenLoadingError, tokenLoading } = useTokens();
   const {nfts,NFTError,NFTLoading}=useNFTs();
   const [balance, setBalance] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -51,8 +51,8 @@ const Page = () => {
         <h1>Tokens</h1>
         {tokenLoading ? (
           <p>Loading...</p>
-        ) : tokenError ? (
-          <p className="text-red-500">Error: {tokenError}</p>
+        ) : tokenLoadingError ? (
+          <p className="text-red-500">Error: {tokenLoadingError}</p>
         ) : (
           <table className="w-full border border-gray-300">
             <thead >
