@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`antialiased ${ibm_plex_sans.className}`}
+        className={`w-full antialiased ${ibm_plex_sans.className}`}
       >
         {children}
       </body>

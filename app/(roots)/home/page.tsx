@@ -1,20 +1,58 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
+import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { useClusterWallet } from "@/hook/useWallet";
 import { useTokens } from "@/hook/useToken";
-import Link from "next/link";
 import { useNFTs } from "@/hook/useNFTs";
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { ExternalLink } from 'lucide-react';
 
 const Page = () => {
   const { cluster, wallet } = useClusterWallet();
   const { tokens, tokenLoadingError, tokenLoading } = useTokens();
-  const {nfts,NFTError,NFTLoading}=useNFTs();
+  const { nfts, NFTError, NFTLoading } = useNFTs();
   const [balance, setBalance] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [tokenImages, setTokenImages] = useState<Record<string, string>>({});
 
-  // fetch wallet balance
+  useEffect(() => {
+    const fetchTokenImages = async () => {
+      if (!tokens || tokens.length === 0) return;
+
+      const imagePromises = tokens.map(async (token) => {
+        if (token.uri) {
+          try {
+            const response = await fetch(token.uri);
+            const metadata = await response.json();
+            return { address: token.address, image: metadata.image };
+          } catch (error) {
+            console.error(`Failed to fetch image for token ${token.address}:`, error);
+            return { address: token.address, image: "" };
+          }
+        }
+        return { address: token.address, image: "" };
+      });
+
+      const images = await Promise.all(imagePromises);
+      const imageMap = images.reduce<{ [key: string]: string }>((acc, { address, image }) => {
+        if (image) acc[address] = image;
+        return acc;
+      }, {});
+
+      setTokenImages(imageMap);
+    };
+
+    fetchTokenImages();
+  }, [tokens]);
+  const formatAmount = (amount: string) => {
+    const tokenAmount = parseFloat(amount) ;
+    return tokenAmount.toLocaleString();
+  };
+
   useEffect(() => {
     const fetchBalance = async () => {
       if (wallet && cluster) {
@@ -30,77 +68,124 @@ const Page = () => {
     fetchBalance();
   }, [wallet, cluster]);
 
-
   return (
-    <div className="flex flex-col">
-      {wallet ? (
-        isLoading ? (
-          <p>Loading balance...</p>
-        ) : (
-          <p>
-            Account Balance ={" "}
-            {balance !== null ? `${balance} SOL in ${cluster}` : "N/A"}{" "}
-          </p>
-        )
-      ) : (
-        <p>Please connect your wallet to view balance.</p>
-      )}
+    <div className=" text-gray-100 p-4 md:p-8">
+      <div className="max-w-7xl space-y-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-center mb-8">Dashboard</h1>
 
-      {/* Display tokens */}
-      <div className="tokens">
-        <h1>Tokens</h1>
-        {tokenLoading ? (
-          <p>Loading...</p>
-        ) : tokenLoadingError ? (
-          <p className="text-red-500">Error: {tokenLoadingError}</p>
-        ) : (
-          <table className="w-full border border-gray-300">
-            <thead >
-              <tr>
-                <th className="border px-4 py-2 text-left">Token Address</th>
-                <th className="border px-4 py-2 text-left">Amount</th>
-                <th className="border px-4 py-2 text-left">Name</th>
-              </tr>
-            </thead>
-            
-              {tokens.map((token, index) => (
-                <tbody>
-                  {token.amount == "0" ? "" :(<tr key={index}>
-                  <td className="border px-4 py-2">{token.name}</td>
-                  <td className="border px-4 py-2 text-blue-500 underline"><Link href={`https://explorer.solana.com/address/${token.address}?cluster=${cluster}`}>{token.address}</Link></td>
-                  <td className="border px-4 py-2">{token.amount}</td>
-                </tr>)}
-                </tbody>
-              ))}
-          </table>
-        )}
-      </div>
-
-      {/* Display NFTs */}
-      <div>
-        <h1>NFTs</h1>
-        {NFTLoading ? (
-          <p>Loading...</p>
-        ) : NFTError ? (
-          <p className="text-red-500">NFT Error: {NFTError}</p>
-        ) : (
-          <div className="flex flex-wrap">
-            {nfts.length > 0 ? (
-              nfts.map((nft, index) => (
-                <div key={index} className="flex flex-col items-center m-2">
-                  <img src={nft.uri} alt={nft.name} className="w-32 h-32 object-cover rounded" />
-                  <p className="text-center">{nft.name}</p>
-                </div>
-              ))
+        <Card className=" border-gray-700">
+          <CardHeader>
+            <CardTitle>Account Balance</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {wallet ? (
+              isLoading ? (
+                <Skeleton className="h-8 w-48 bg-gray-700" />
+              ) : (
+                <p className="text-2xl font-semibold">
+                  {balance !== null ? `${balance.toFixed(4)} SOL` : "N/A"}{" "}
+                  <span className="text-sm font-normal text-gray-400">in {cluster}</span>
+                </p>
+              )
             ) : (
-              <p>No NFTs found.</p>
+              <p className="text-yellow-400">Please connect your wallet to view balance.</p>
             )}
-          </div>
-        )}
-      </div>
+          </CardContent>
+        </Card>
 
+        <Card className=" border-gray-700">
+          <CardHeader>
+            <CardTitle>Tokens</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {tokenLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full " />
+                <Skeleton className="h-8 w-full " />
+              </div>
+            ) : tokenLoadingError ? (
+              <p className="text-red-500">Error: {tokenLoadingError}</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-gray-300">Logo</TableHead>
+                      <TableHead className="text-gray-300">Name</TableHead>
+                      <TableHead className="text-gray-300">Token Address</TableHead>
+                      <TableHead className="text-gray-300">Amount</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {tokens.filter(token => token.amount !== "0").map((token, index) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                            {tokenImages[token.address] ? (
+                              <img
+                                src={tokenImages[token.address]}
+                                alt={token.name}
+                                className="h-8 w-8 object-cover rounded-lg"
+                              />
+                            ) : (
+                              <h1>????</h1>
+                            )}
+                          </TableCell>
+                        <TableCell>{token.name}</TableCell>
+                        <TableCell>
+                          <Link 
+                            href={`https://explorer.solana.com/address/${token.address}?cluster=${cluster}`}
+                            className="text-blue-400 hover:text-blue-300 flex items-center"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {token.address.slice(0, 4)}...{token.address.slice(-4)}
+                            <ExternalLink className="ml-1 h-4 w-4" />
+                          </Link>
+                        </TableCell>
+                        <TableCell>{formatAmount(token.amount)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className=" border-gray-700">
+          <CardHeader>
+            <CardTitle>NFTs</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {NFTLoading ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {[...Array(5)].map((_, index) => (
+                  <Skeleton key={index} className="h-32 w-32 bg-gray-700" />
+                ))}
+              </div>
+            ) : NFTError ? (
+              <p className="text-red-500">NFT Error: {NFTError}</p>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {nfts.length > 0 ? (
+                  nfts.map((nft, index) => (
+                    <div key={index} className="flex flex-col items-center">
+                      <img src={nft.uri} alt={nft.name} className="w-32 h-32 object-cover rounded-lg shadow-lg" />
+                      <p className="mt-2 text-sm text-center text-gray-300">{nft.name}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-400 col-span-full text-center">No NFTs found.</p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
 
 export default Page;
+

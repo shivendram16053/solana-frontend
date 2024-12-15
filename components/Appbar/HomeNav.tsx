@@ -31,7 +31,7 @@ const HomeNav: React.FC = () => {
   };
 
   return (
-    <div className="w-full p-6 flex items-center justify-between top-0 bg-opacity-75">
+    <div className="sticky bg-black p-6 flex items-center justify-between top-0 ">
       <div className="flex space-x-4">
         <input
           type="text"

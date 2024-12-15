@@ -9,27 +9,36 @@ import {
 import React, { useContext, useState, createContext, useEffect } from "react";
 import { useClusterWallet } from "./useWallet";
 import {
+  AccountLayout,
+  AuthorityType,
   createAssociatedTokenAccountInstruction,
   createInitializeMetadataPointerInstruction,
   createInitializeMintInstruction,
   createMintToInstruction,
+  createSetAuthorityInstruction,
   ExtensionType,
   getAssociatedTokenAddress,
+  getMint,
   getMintLen,
+  getTokenMetadata,
   LENGTH_SIZE,
   TOKEN_2022_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
   TYPE_SIZE,
 } from "@solana/spl-token";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { createInitializeInstruction, createUpdateFieldInstruction, pack, TokenMetadata } from "@solana/spl-token-metadata";
+import {
+  createInitializeInstruction,
+  createUpdateFieldInstruction,
+  pack,
+  TokenMetadata,
+} from "@solana/spl-token-metadata";
 
 interface Token {
   tokens: {
     address: string;
     amount: string;
     name: string;
-    image: string | null;
+    uri: string | null;
   }[];
   tokenLoadingError: string | null;
   tokenLoading: boolean;
@@ -51,63 +60,73 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { wallet, cluster } = useClusterWallet();
-  const { publicKey, connected, signTransaction } =
-    useWallet();
+  const { publicKey, connected, signTransaction } = useWallet();
   const connection = new Connection(clusterApiUrl(cluster), "confirmed");
   const [tokens, setTokens] = useState<
-    { address: string; amount: string; name: string; image: string | null }[]
+    { address: string; amount: string; name: string; uri: string | null }[]
   >([]);
   const [tokenLoadingError, setLoadingError] = useState<string | null>(null);
   const [tokenLoading, setTokenLoading] = useState<boolean>(false);
 
-  //SOLANA TOKEN FETCHING........
-  useEffect(() => {
-    if (connected || publicKey || wallet) {
-      setLoadingError("");
-      const fetchTokens = async () => {
-        try {
-          setTokenLoading(true);
-          const pubkey = new PublicKey(wallet);
-          const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
-            pubkey,
-            {
-              programId: TOKEN_PROGRAM_ID,
-            }
-          );
+  const fetchToken = async () => {
+  
+    setTokenLoading(true);
+    setLoadingError(null);
+  
+    try {
+      const tokenAccounts = await connection.getTokenAccountsByOwner(new PublicKey(wallet), {
+        programId: TOKEN_2022_PROGRAM_ID,
+      });
+  
+      const tokensList = await Promise.all(
+        tokenAccounts.value.map(async ({ pubkey, account }) => {
+          try {
+            const accountInfo = AccountLayout.decode(account.data);
+            const mintAddress = new PublicKey(accountInfo.mint);
+            const metadata = await getTokenMetadata(connection, mintAddress);
 
-          const tokenList = await Promise.all(
-            tokenAccounts.value.map(async (tokenAccountInfo) => {
-              const mintAddress =
-                tokenAccountInfo.account.data.parsed.info.mint;
-              const tokenAmount =
-                tokenAccountInfo.account.data.parsed.info.tokenAmount
-                  .uiAmountString;
+              
+            return {
+              address: pubkey.toString(),
+              amount: accountInfo.amount.toString(),
+              name: metadata?.name || "Unknown Token",
+              uri: metadata?.uri || null,
+            };
+          } catch (metadataError) {
+            console.error(`Error fetching metadata for account ${pubkey}:`, metadataError);
+            return null;
+          }
+        })
+      );
+  
+      const validTokens = tokensList.filter(
+        (token): token is {
+          address: string;
+          amount: string;
+          name: string;
+          uri: string | null;
+        } => token !== null
+      );
 
-              return {
-                address: mintAddress,
-                amount: tokenAmount,
-                name: "Unknown Token",
-                image: null,
-              };
-            })
-          );
-
-          setTokens(tokenList);
-          setTokenLoading(false);
-        } catch (err: any) {
-          setLoadingError(`Failed to fetch tokens: ${err.message}`);
-        } finally {
-          setTokenLoading(false);
-        }
-      };
-
-      fetchTokens();
-    } else {
-      setTokens([]);
-      setLoadingError("Connect Your wallet");
+      setTokens(validTokens);
+    } catch (err) {
+      console.error("Error fetching token accounts:", err);
+      setLoadingError("Failed to load tokens. Please try again.");
+    } finally {
       setTokenLoading(false);
     }
-  }, [wallet, cluster]);
+  };
+  
+
+  useEffect(() => {
+    if(connected||wallet){
+      fetchToken();
+    }
+    else{
+      setTokens([])
+      setLoadingError("Connect Wallet")
+    }
+  }, [wallet,cluster]);
 
   const createToken = async (
     name: string,
@@ -123,7 +142,6 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         const mintKeypair = Keypair.generate();
         const metadata: TokenMetadata = {
-          updateAuthority: publicKey,
           mint: mintKeypair.publicKey,
           name: name,
           symbol: symbol,
@@ -170,19 +188,12 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
           createInitializeInstruction({
             programId: TOKEN_2022_PROGRAM_ID,
             metadata: mintKeypair.publicKey,
-            updateAuthority: publicKey,
+            updateAuthority: mintKeypair.publicKey,
             mint: mintKeypair.publicKey,
             mintAuthority: publicKey,
             name: metadata.name,
             symbol: metadata.symbol,
             uri: metadata.uri,
-          }),
-          createUpdateFieldInstruction({
-            programId: TOKEN_2022_PROGRAM_ID,
-            metadata: mintKeypair.publicKey,
-            updateAuthority: publicKey,
-            field: metadata.additionalMetadata[0][0],
-            value: metadata.additionalMetadata[0][1],
           }),
           createAssociatedTokenAccountInstruction(
             publicKey,
@@ -200,6 +211,19 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
             TOKEN_2022_PROGRAM_ID
           )
         );
+
+        if (!mintAuthority) {
+          transaction.add(
+            createSetAuthorityInstruction(
+              mintKeypair.publicKey,
+              publicKey,
+              AuthorityType.MintTokens,
+              null,
+              [],
+              TOKEN_2022_PROGRAM_ID
+            )
+          );
+        }
 
         transaction.feePayer = publicKey;
         const latestBlockhash = await connection.getLatestBlockhash();

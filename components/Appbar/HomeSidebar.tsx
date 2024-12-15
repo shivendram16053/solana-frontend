@@ -10,7 +10,7 @@ const HomeSidebar = () => {
     pathname === path ? "bg-gray-900" : "hover:bg-gray-800";
 
   return (
-    <div className="bg-black w-96 h-screen p-6 text-white">
+    <div className="bg-black w-96 p-6 text-white sticky top-0 h-screen overflow-y-auto">
       {/* Sidebar Header */}
       <div className="flex items-center space-x-3 mb-8">
         {/* Title */}
