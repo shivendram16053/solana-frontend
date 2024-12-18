@@ -38,7 +38,7 @@ const HomeNav: React.FC = () => {
           value={wallet || ""}
           onChange={(e) => setWallet(e.target.value)}
           placeholder="Enter Wallet or Connect Wallet"
-          className="w-96 bg-zinc-800 border-none text-sm outline-zinc-700 p-1 rounded-xl"
+          className="w-96 bg-white border-none text-sm outline-zinc-700 p-1 rounded-xl"
         />
       </div>
       <div className="flex items-center space-x-5">

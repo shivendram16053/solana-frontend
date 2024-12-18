@@ -37,6 +37,7 @@ interface Token {
   tokens: {
     address: string;
     amount: string;
+    symbol:string;
     name: string;
     uri: string | null;
   }[];
@@ -63,7 +64,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
   const { publicKey, connected, signTransaction } = useWallet();
   const connection = new Connection(clusterApiUrl(cluster), "confirmed");
   const [tokens, setTokens] = useState<
-    { address: string; amount: string; name: string; uri: string | null }[]
+    { address: string; amount: string;symbol:string; name: string; uri: string | null }[]
   >([]);
   const [tokenLoadingError, setLoadingError] = useState<string | null>(null);
   const [tokenLoading, setTokenLoading] = useState<boolean>(false);
@@ -84,11 +85,20 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
             const accountInfo = AccountLayout.decode(account.data);
             const mintAddress = new PublicKey(accountInfo.mint);
             const metadata = await getTokenMetadata(connection, mintAddress);
+            const mintInfo = await connection.getParsedAccountInfo(mintAddress) as any;
+
+            const decimals =
+            mintInfo.value?.data?.parsed?.info?.decimals || 0;
+
+          // Format the amount by removing decimals
+          const formattedAmount = (BigInt(accountInfo.amount) / BigInt(10 ** decimals)).toString();
+
 
               
             return {
               address: pubkey.toString(),
-              amount: accountInfo.amount.toString(),
+              amount: formattedAmount,
+              symbol:metadata?.symbol,
               name: metadata?.name || "Unknown Token",
               uri: metadata?.uri || null,
             };
@@ -103,6 +113,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
         (token): token is {
           address: string;
           amount: string;
+          symbol:string;
           name: string;
           uri: string | null;
         } => token !== null

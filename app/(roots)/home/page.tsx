@@ -50,6 +50,7 @@ const Page = () => {
   }, [tokens]);
   const formatAmount = (amount: string) => {
     const tokenAmount = parseFloat(amount) ;
+
     return tokenAmount.toLocaleString();
   };
 
@@ -143,7 +144,7 @@ const Page = () => {
                             <ExternalLink className="ml-1 h-4 w-4" />
                           </Link>
                         </TableCell>
-                        <TableCell>{formatAmount(token.amount)}</TableCell>
+                        <TableCell>{formatAmount(token.amount)+ " "+token.symbol}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

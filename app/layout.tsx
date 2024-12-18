@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`w-full antialiased ${ibm_plex_sans.className}`}
+        className={`w-full bg-zinc-950 antialiased ${ibm_plex_sans.className}`}
       >
         {children}
       </body>

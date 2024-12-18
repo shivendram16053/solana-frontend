@@ -14,7 +14,7 @@ const HomeSidebar = () => {
       {/* Sidebar Header */}
       <div className="flex items-center space-x-3 mb-8">
         {/* Title */}
-        <h1 className="text-2xl font-bold">Step</h1>
+        <h1 className="text-2xl font-bold">Something cooking</h1>
       </div>
 
       {/* Sidebar Items */}
@@ -58,7 +58,7 @@ const HomeSidebar = () => {
         {/* Accounts */}
         <li className={`flex items-center space-x-3 p-2 rounded-lg ${getActiveClass("/home/accounts")}`}>
           <FaBox />
-          <Link href="/home/accounts">Accounts</Link>
+          <Link href="/home/close-burn-tokens">Close / Burn</Link>
         </li>
       </ul>
     </div>
